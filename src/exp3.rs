@@ -10,7 +10,7 @@ use crate::exp2::APL_Y;
 use crate::modify;
 use crate::show;
 
-pub fn led_init(dp: &pac::Peripherals) {
+pub fn init(dp: &pac::Peripherals) {
     modify!(dp.RCC.apb2enr, | 1 << 4);
     modify!(dp.GPIOC.crl, &0xFFFF0000);
     modify!(dp.GPIOC.crl, | 0x00008888);
@@ -39,7 +39,7 @@ macro_rules! press {
 }
 pub fn exp3() -> ! {
     let dp = pac::Peripherals::take().unwrap();
-    led_init(&dp);
+    init(&dp);
     let cp = cortex_m::Peripherals::take().unwrap();
     let mut flash = dp.FLASH.constrain();
     let rcc = dp.RCC.constrain();
@@ -69,10 +69,12 @@ pub fn exp3() -> ! {
     let mut pe14 = gpioe.pe14.into_push_pull_output(&mut gpioe.crh);
     let mut key_down_up = 0;
     let mut speed = 200;
+    let mut speed_index = 0;
     let mut pos = 0;
     let mut direct = 0;
+
     loop {
-        for _ in 0..speed {
+        while speed_index <= speed {
             __move!(pos, pb0, pb1, pb2);
 
             if key_down_up == 0 {
@@ -104,7 +106,11 @@ pub fn exp3() -> ! {
             delay.delay_ms(1u32);
             press!("k2", k2_press, k2, key_down_up = 2, key_down_up = 0);
             press!("k4", k4_press, k4, key_down_up = 4, key_down_up = 0);
+            press!("k1", k1_press, k1, speed = 50, speed = 200);
+            press!("k3", k3_press, k3, speed = 400, speed = 200);
+            speed_index += 1;
         }
+        speed_index = 0;
         if direct == 0 {
             if pos == 5 {
                 direct = 1;
@@ -118,7 +124,5 @@ pub fn exp3() -> ! {
         } else {
             pos -= 1;
         }
-        press!("k1", k1_press, k1, speed = 50, speed = 200);
-        press!("k3", k3_press, k3, speed = 400, speed = 200);
     }
 }
