@@ -5,7 +5,11 @@ use stm32f1xx_hal::{
 };
 
 pub static APL_0: u8 = 0b0000000;
+
+pub static APL_1: u8 = 0b0110000;
 pub static APL_2: u8 = 0b1011011;
+
+pub static APL_3: u8 = !0b0110000;
 pub static APL_4: u8 = 0b1100110;
 
 pub static APL_P: u8 = 0b1110011;
